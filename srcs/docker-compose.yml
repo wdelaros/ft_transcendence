@@ -1,0 +1,52 @@
+services:
+  webserv:
+    container_name: webserv
+    build:
+      context: ./web/
+      dockerfile: Dockerfile
+    ports:
+      - 443:443
+    volumes:
+      - ./web/www/:/usr/share/nginx/html
+    networks:
+      - transcendence
+    restart: always
+    depends_on:
+      - backend
+    env_file:
+    - .env
+
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend:/backend
+    networks:
+      - transcendence
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - database
+
+  database:
+    container_name: database
+    image: postgres:16.2-alpine
+    networks:
+      - transcendence
+    restart: always
+    ports:
+      - 5432
+    env_file:
+      - .env
+    volumes:
+      - database:/var/lib/postgresql/data
+
+networks:
+  transcendence:
+    driver: bridge
+
+volumes:
+  database:
