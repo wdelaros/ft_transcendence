@@ -18,6 +18,9 @@ nuke:
 
 re: fclean all
 
+setup:
+	@docker-compose -f "./srcs/docker-compose.yml" -p transcendence up setup
+
 #this method is for the ci/cd tester
 test:
 	@echo "Launching the tester version of the transcendence..."
