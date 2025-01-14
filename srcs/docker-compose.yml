@@ -69,6 +69,7 @@ services:
       - transcendence
     depends_on:
       - elasticsearch
+
   elasticsearch:
     build:
       context: monitor/elasticsearch/
@@ -88,6 +89,7 @@ services:
     networks:
       - transcendence
     restart: unless-stopped
+
   logstash:
     build:
       context: monitor/logstash/
@@ -109,6 +111,7 @@ services:
     depends_on:
       - elasticsearch
     restart: unless-stopped
+
   kibana:
     build:
       context: monitor/kibana/
@@ -125,6 +128,34 @@ services:
     depends_on:
       - elasticsearch
     restart: unless-stopped
+
+  filebeat:
+    build:
+      context: monitor/extensions/filebeat/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    user: root
+    command:
+      # Log to stderr.
+      - -e
+      - --strict.perms=false
+    volumes:
+      - ./monitor/extensions/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro,Z
+      - type: bind
+        source: /var/lib/docker/containers
+        target: /var/lib/docker/containers
+        read_only: true
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+    environment:
+      FILEBEAT_INTERNAL_PASSWORD: ${FILEBEAT_INTERNAL_PASSWORD:-}
+      BEATS_SYSTEM_PASSWORD: ${BEATS_SYSTEM_PASSWORD:-}
+    networks:
+      - transcendence
+    depends_on:
+      - elasticsearch
 
 networks:
   transcendence:
