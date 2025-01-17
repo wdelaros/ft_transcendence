@@ -212,5 +212,7 @@ export class GameState {
 				}
 			}
 		}
+		else
+			game.resetGame();
 	}
 }
